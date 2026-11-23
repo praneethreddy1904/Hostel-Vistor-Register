@@ -38,6 +38,85 @@ class Visitors(Base):
 
 Base.metadata.create_all(engine)
 
+# --------register-----------
+def register_user(username:str, email:str , password:str):
+    session = Session(engine)
+    user_exists = session.query(users).filter_by(email=email).first()
+    if user_exists is not None:
+        session.close()
+        return False
+    user = users(username=username, email=email, hashed_password=ph.hash(password))
+    session.add(user)
+    session.commit()
+    response = {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at
+    }
+    session.close()
+    return response
+
+
+#-----------login-----------
+
+def verify_login(username, email, password):
+    session = Session(engine)
+
+    user = session.query(users).filter_by(email=email).first()
+
+    if user is None:
+        session.close()
+        return False
+
+    try:
+        ph.verify(user.hashed_password, password)
+
+    except VerifyMismatchError:
+        session.close()
+        return False
+
+    user_id = user.id
+    user_name = user.username
+    user_email = user.email
+
+    session.close()
+
+    access_token = create_token(user_id, user_name, user_email, "access")
+    refresh_token = create_token(user_id, user_name, user_email, "refresh")
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }
+
+# ----------token-------------
+def create_token(user_id, username, email, token_type):
+    time = ACCESS_TOKEN_EXPIRY
+    if token_type == "refresh":
+        time = REFRESH_TOKEN_EXPIRY
+ 
+    payload = {
+        "user_id": user_id,
+        "username": username,
+        "email": email,
+        "token_type": token_type,
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=time)
+    }
+    token = jwt.encode(payload=payload, key=SECRET_KEY, algorithm=ALGORITHM)
+    return token
+  
+def verify_token(token, token_type):
+    try:
+        payload = jwt.decode(jwt=token, key=SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.InvalidTokenError:
+        return False
+    
+    if payload["token_type"] == token_type:
+        return payload["user_id"]
+    return False
+
+
 def refresh_access_token(token):
 
     try:
