@@ -73,7 +73,7 @@ def refresh(refresh_token: str = Header(None)):
 
 # -------- 4. Get All Visitors --------
 
-@app.get("/visitors")
+@app.get("/get-visitors")
 def get_all_visitors(token: str = Header(None)):
     user_id = functions.verify_token(token=token,token_type="access")
     if not user_id:
