@@ -38,6 +38,25 @@ class Visitors(Base):
 
 Base.metadata.create_all(engine)
 
+def refresh_access_token(token):
+
+    try:
+        payload = jwt.decode(jwt=token,key=SECRET_KEY,algorithms=[ALGORITHM])
+    except jwt.InvalidTokenError:
+        return False
+
+    if payload["token_type"] != "refresh":
+        return False
+
+    access_token = create_token(
+        payload["user_id"],
+        payload["username"],
+        payload["email"],
+        "access"
+    )
+    return {
+        "access_token": access_token
+    }
 
 # --------visitors-----------
 def get_all_visitors(user_id):
