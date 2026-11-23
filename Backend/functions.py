@@ -38,7 +38,6 @@ class Visitors(Base):
 
 Base.metadata.create_all(engine)
 
-
 # --------register-----------
 def register_user(username:str, email:str , password:str):
     session = Session(engine)
@@ -117,6 +116,7 @@ def verify_token(token, token_type):
         return payload["user_id"]
     return False
 
+
 def refresh_access_token(token):
 
     try:
@@ -136,7 +136,6 @@ def refresh_access_token(token):
     return {
         "access_token": access_token
     }
-
 
 # --------visitors-----------
 def get_all_visitors(user_id):
