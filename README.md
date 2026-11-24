@@ -103,6 +103,10 @@ The application must provide APIs for the following. Fill in the API contract fo
 | E1 | Get all visitor records registered by the logged-in staff member | GET | /visitors | None (access token sent in the token header) | 200 ok |
 | E2 | Register a new visitor and associate the record with the logged-in staff member | POST | /visitors |{"visitor_name","student_name","room_no","purpose","visit_date"}| 201 created |
 
+
+## Drive link for swagger:
+https://drive.google.com/file/d/1Kubo5V-Q9sG2BLOUNw8c2C1xIXgsGrMf/view?usp=sharing
+
 ## Datebase Tables
 
 | # | Table | Columns |
